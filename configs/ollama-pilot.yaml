@@ -1,0 +1,15 @@
+suite: research_workspace_v1
+provider: ollama
+model: qwen3:0.6b
+case_count: 2
+variants:
+  - baseline
+  - controls_and_recovery
+conditions:
+  - clean
+  - combined
+repeats: 1
+limits:
+  tool_calls: 12
+  wall_seconds: 180
+

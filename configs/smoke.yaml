@@ -1,0 +1,17 @@
+suite: research_workspace_v1
+provider: scripted
+model: deterministic-harness-control
+case_count: 8
+variants:
+  - baseline
+  - controls_and_recovery
+conditions:
+  - clean
+  - fault
+  - misleading
+  - combined
+repeats: 1
+limits:
+  tool_calls: 12
+  wall_seconds: 60
+

@@ -3,6 +3,10 @@
 This checked-in report records the deterministic 64-episode harness run from
 `configs/smoke.yaml`. The scripted provider is a test control, not a model result.
 
+The v0.2 runner also records a config/task/Git identity, typed completion status and separate
+attempt IDs. Repeating the command resumes completed episodes; `--no-resume` creates new
+attempt records without silently replacing attempt history.
+
 | Variant | Condition | Episodes | Verified completion | False completion | Fault recovery | Duplicate effects |
 |---|---|---:|---:|---:|---:|---:|
 | baseline | clean | 8 | 100% | 0% | 0% | 0 |
@@ -24,4 +28,3 @@ The baseline duplicates review requests after post-commit timeouts because it re
 the mutation without reconciling state. The recovery control reads the review list after
 the ambiguous response and avoids a second write. Misleading conditions instead test
 whether the agent uses approved provenance rather than a higher stale value.
-

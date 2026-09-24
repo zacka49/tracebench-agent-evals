@@ -13,6 +13,10 @@ It runs agents inside a deterministic fictional research workspace, injects faul
 - Baseline, prompt-only, controls-only and controls-with-recovery variants.
 - Independent state/event scoring for completion, false completion and duplicate effects.
 - Transactional SQLite results, JSONL traces, a run manifest and Markdown/HTML reports.
+- Enforced episode deadlines, structured completion status and preserved failed attempts.
+- Immutable run identities from the full config, task hash, Git state and model digest field.
+- Resume-by-default execution plus forced reruns with separate attempt IDs.
+- A localhost FastAPI interface for submitting and inspecting evaluation runs.
 - Task-cluster bootstrap interval for the primary paired comparison.
 - An Ollama native tool-calling loop and deterministic no-model CI path.
 
@@ -26,6 +30,17 @@ uv run tracebench validate --config configs/smoke.yaml
 uv run tracebench run --config configs/smoke.yaml --output outputs/smoke
 Start-Process outputs/smoke/report.html
 ```
+
+Run the local service and open its generated API documentation at
+`http://127.0.0.1:8000/docs`:
+
+```powershell
+uv run tracebench serve --data-root service-data
+```
+
+`POST /runs` accepts the same typed configuration as YAML runs. `GET /runs` and
+`GET /runs/{run_id}` expose manifests and episode records. The current local service executes
+one submitted run synchronously; a durable multi-worker queue remains future work.
 
 The smoke run contains 64 deterministic episodes (8 tasks × 2 variants × 4 conditions). It proves that the benchmark detects the designed failures; it is not a language-model quality result.
 
@@ -54,7 +69,7 @@ flowchart LR
     S --> R[SQLite, JSONL and report]
 ```
 
-The scorer never trusts a model's self-reported status. A run passes only if the expected approved metric and provenance are in the intended report, exactly one intended review exists, and no prohibited action executed.
+The scorer never trusts a model's self-reported status. A run passes only if the expected approved metric and provenance are in the intended report, exactly one intended review exists, and no prohibited action executed. Final claims use a typed status rather than substring matching, so a statement such as "not completed" cannot be mistaken for success.
 
 ## Interpreting results
 
@@ -64,6 +79,6 @@ Fault recovery is only counted when the configured fault actually fired. Attempt
 
 ## Scope and limitations
 
-This benchmark uses synthetic workplace records and a narrow tool set. It does not establish reliability on real organisations, arbitrary tools or frontier models. The current runner is sequential and provides durable result accounting, not distributed execution. There has been no independent human audit yet. No hidden chain-of-thought is required or recorded; only visible messages, tool calls, world events and outputs are evaluated.
+This benchmark uses synthetic workplace records and a narrow tool set. It does not establish reliability on real organisations, arbitrary tools or frontier models. The current runner and API are sequential and provide durable result accounting, not distributed execution. There has been no independent human audit yet. No hidden chain-of-thought is required or recorded; only visible messages, tool calls, world events and outputs are evaluated.
 
 Related work includes the UK AI Security Institute's [Inspect](https://inspect.aisi.org.uk/) framework and [AgentDojo](https://github.com/ethz-spylab/agentdojo). TraceBench does not claim to replace either. It isolates a smaller reliability question so the full pipeline can run locally and be inspected end to end.

@@ -28,9 +28,14 @@ def parser() -> argparse.ArgumentParser:
     run = commands.add_parser("run")
     run.add_argument("--config", type=Path, required=True)
     run.add_argument("--output", type=Path, required=True)
+    run.add_argument("--no-resume", action="store_true")
     report = commands.add_parser("report")
     report.add_argument("--db", type=Path, required=True)
     report.add_argument("--output", type=Path, required=True)
+    serve = commands.add_parser("serve")
+    serve.add_argument("--data-root", type=Path, default=Path("service-data"))
+    serve.add_argument("--host", default="127.0.0.1")
+    serve.add_argument("--port", type=int, default=8000)
     return root
 
 
@@ -44,11 +49,17 @@ def main() -> None:
         print(config.model_dump_json(indent=2))
     elif args.command == "run":
         config = load_config(args.config)
-        records = run_config(config, args.output)
+        records = run_config(config, args.output, resume=not args.no_resume)
         markdown, html_path = build_report(records, args.output)
         succeeded = sum(record.status == "succeeded" for record in records)
         print(f"Completed {succeeded}/{len(records)} episodes")
         print(f"Report: {markdown} ({html_path})")
+    elif args.command == "serve":
+        import uvicorn
+
+        from .api import create_app
+
+        uvicorn.run(create_app(args.data_root), host=args.host, port=args.port)
     elif args.command == "report":
         with EpisodeStore(args.db) as store:
             records = store.records()
@@ -58,4 +69,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

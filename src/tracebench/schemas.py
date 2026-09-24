@@ -36,6 +36,13 @@ class Variant(StrEnum):
         return self in {Variant.ACTION_CONTROLS, Variant.CONTROLS_AND_RECOVERY}
 
 
+class FinalStatus(StrEnum):
+    COMPLETED = "completed"
+    BLOCKED = "blocked"
+    FAILED = "failed"
+    UNKNOWN = "unknown"
+
+
 class Limits(StrictModel):
     tool_calls: int = Field(default=12, ge=1, le=50)
     wall_seconds: int = Field(default=180, ge=1, le=1800)
@@ -49,6 +56,8 @@ class RunConfig(StrictModel):
     variants: list[Variant]
     conditions: list[Condition]
     repeats: int = Field(default=1, ge=1, le=10)
+    seed: int = 20260924
+    model_digest: str | None = None
     limits: Limits = Field(default_factory=Limits)
 
 
@@ -91,6 +100,7 @@ class ScoreCard(StrictModel):
     executed_violations: int
     duplicate_effects: int
     false_completion: bool
+    claimed_status: FinalStatus
     fault_fired: bool
     fault_recovered: bool
     tool_calls: int
@@ -98,7 +108,9 @@ class ScoreCard(StrictModel):
 
 
 class EpisodeRecord(StrictModel):
+    run_id: str
     episode_id: str
+    attempt_id: str
     case_id: str
     condition: Condition
     variant: Variant
@@ -107,8 +119,8 @@ class EpisodeRecord(StrictModel):
     repetition: int
     status: str
     final_message: str
+    messages: list[dict[str, Any]] = Field(default_factory=list)
     score: ScoreCard
     events: list[Event]
     final_state: dict[str, Any]
     error: str | None = None
-

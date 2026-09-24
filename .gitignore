@@ -5,5 +5,5 @@
 __pycache__/
 *.pyc
 outputs/
+service-data/
 *.db
-

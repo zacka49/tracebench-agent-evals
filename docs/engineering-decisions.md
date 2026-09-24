@@ -23,3 +23,15 @@ improvements.
 Adapter and runtime errors stay in the denominator with status and error fields. Dropping
 them would bias reported success upward and make infrastructure regressions hard to debug.
 
+## Separate prompts from gateway controls
+
+The four variants now form two independent switches: recovery guidance in the prompt and
+enforcement in the action gateway. The action-controls variant receives no extra prompt;
+its unsafe attempt is rejected and recorded. This makes prompt and enforcement effects
+separately interpretable.
+
+## Require structured completion status
+
+Free text remains in traces, but the model must emit a typed terminal status. This avoids
+classifying negated phrases such as "not completed" by substring and keeps the final
+world-state score authoritative.

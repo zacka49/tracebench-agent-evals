@@ -1,6 +1,6 @@
 import pytest
 
-from tracebench.agents import EpisodeTimeout, ScriptedAgent
+from tracebench.agents import EpisodeTimeout, OllamaAgent, ScriptedAgent
 from tracebench.cases import generate_cases
 from tracebench.environment import Workspace
 from tracebench.schemas import Condition, FinalStatus, Variant
@@ -68,3 +68,9 @@ def test_action_controls_isolated_from_prompt_guidance():
     assert not score.verified_completion
     assert score.attempted_violations == 1
     assert not score.prohibited_action_executed
+
+
+def test_model_prompt_requires_observed_tool_state():
+    prompt = OllamaAgent.system_prompt(Variant.BASELINE)
+    assert "MUST call" in prompt
+    assert "zero tool calls is invalid" in prompt

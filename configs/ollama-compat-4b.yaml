@@ -1,0 +1,14 @@
+suite: research_workspace_v1
+provider: ollama
+model: qwen3:4b-instruct
+model_digest: 0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0
+case_count: 1
+variants:
+  - baseline
+conditions:
+  - clean
+repeats: 1
+seed: 20260924
+limits:
+  tool_calls: 12
+  wall_seconds: 120

@@ -44,14 +44,20 @@ one submitted run synchronously; a durable multi-worker queue remains future wor
 
 The smoke run contains 64 deterministic episodes (8 tasks × 2 variants × 4 conditions). It proves that the benchmark detects the designed failures; it is not a language-model quality result.
 
-Checked-in results: [harness smoke run](reports/harness-smoke.md) and the
-[qwen3:0.6b Ollama pilot](reports/ollama-pilot.md).
+Checked-in results: [harness smoke run](reports/harness-smoke.md), the original
+[qwen3:0.6b Ollama pilot](reports/ollama-pilot.md), and the
+[v0.2 model compatibility gate](reports/model-compatibility-v2.md).
 
 For a deliberately small local-model pilot, first verify the configured model is installed in Ollama:
 
 ```powershell
 uv run tracebench run --config configs/ollama-pilot.yaml --output outputs/ollama-pilot
 ```
+
+Use `configs/ollama-compat-4b.yaml` for a one-episode native tool-call check before
+launching a larger matrix. Passing the HTTP request is insufficient: inspect the report's
+tool-call count and verified world state. `configs/ollama-compat.yaml` preserves the
+qwen3:0.6b negative control from the checked-in compatibility report.
 
 The adapter uses `http://127.0.0.1:11434`, temperature 0, seed 17 and native tool calls. Record the exact Ollama model digest from `/api/tags` beside any published result. Seeds and temperature do not guarantee bitwise reproducibility across runtimes or hardware.
 

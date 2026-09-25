@@ -109,6 +109,12 @@ def build_report(records: list[EpisodeRecord], output_dir: Path) -> tuple[Path, 
         )
     else:
         lines.append("The configured run did not contain both primary variants.")
+    family_counts: dict[str, int] = defaultdict(int)
+    for record in records:
+        family_counts[record.family.value] += 1
+    lines.extend(["", "## Task-family coverage", ""])
+    for family, count in sorted(family_counts.items()):
+        lines.append(f"- `{family}`: {count} episodes")
     lines.extend(
         [
             "",

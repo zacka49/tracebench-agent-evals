@@ -142,6 +142,7 @@ def run_config(config: RunConfig, output_dir: Path, resume: bool = True) -> list
                             episode_id=episode_id,
                             attempt_id=attempt_id,
                             case_id=case.case_id,
+                            family=case.family,
                             condition=condition,
                             variant=variant,
                             provider=config.provider,

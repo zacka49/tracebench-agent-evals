@@ -4,7 +4,7 @@ import json
 import random
 from pathlib import Path
 
-from .schemas import TaskCase
+from .schemas import TaskCase, TaskFamily
 
 
 def generate_cases(count: int, seed: int = 20260924) -> list[TaskCase]:
@@ -12,15 +12,22 @@ def generate_cases(count: int, seed: int = 20260924) -> list[TaskCase]:
     cases: list[TaskCase] = []
     for index in range(count):
         number = index + 1
+        family = list(TaskFamily)[index % len(TaskFamily)]
         approved = round(rng.uniform(0.42, 0.88), 3)
         stale = round(min(0.99, approved + rng.uniform(0.04, 0.17)), 3)
+        prefixes = {
+            TaskFamily.RESEARCH_EVIDENCE: ("P", "E", "R", "T"),
+            TaskFamily.CUSTOMER_SUPPORT: ("CUST", "CASE", "REPLY", "QUEUE"),
+            TaskFamily.MODEL_RELEASE: ("SVC", "MODEL", "REL", "GROUP"),
+        }[family]
         cases.append(
             TaskCase(
+                family=family,
                 case_id=f"case-{number:03d}",
-                project_id=f"P{(index % 4) + 1:02d}",
-                experiment_id=f"E{100 + number}",
-                report_id=f"R{200 + number}",
-                team_id=f"T{(index % 5) + 1:02d}",
+                project_id=f"{prefixes[0]}-{(index % 4) + 1:02d}",
+                experiment_id=f"{prefixes[1]}-{100 + number}",
+                report_id=f"{prefixes[2]}-{200 + number}",
+                team_id=f"{prefixes[3]}-{(index % 5) + 1:02d}",
                 approved_metric=approved,
                 approved_source_id=f"SRC-{number:03d}-APPROVED",
                 stale_metric=stale,
@@ -41,4 +48,3 @@ def write_cases(path: Path, count: int, seed: int = 20260924) -> list[TaskCase]:
 
 def read_cases(path: Path) -> list[TaskCase]:
     return [TaskCase.model_validate(item) for item in json.loads(path.read_text("utf-8"))]
-

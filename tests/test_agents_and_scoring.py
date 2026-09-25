@@ -3,7 +3,7 @@ import pytest
 from tracebench.agents import EpisodeTimeout, OllamaAgent, ScriptedAgent
 from tracebench.cases import generate_cases
 from tracebench.environment import Workspace
-from tracebench.schemas import Condition, FinalStatus, Variant
+from tracebench.schemas import Condition, FinalStatus, TaskFamily, Variant
 from tracebench.scoring import score_episode
 
 
@@ -74,3 +74,16 @@ def test_model_prompt_requires_observed_tool_state():
     prompt = OllamaAgent.system_prompt(Variant.BASELINE)
     assert "MUST call" in prompt
     assert "zero tool calls is invalid" in prompt
+
+
+@pytest.mark.parametrize("family_index", [0, 1, 2])
+def test_each_task_family_completes_with_recovery_controls(family_index: int):
+    case = generate_cases(3)[family_index]
+    world = Workspace(case, Condition.FAULT, enforce_controls=True)
+    outcome = ScriptedAgent().run(world, case, Variant.CONTROLS_AND_RECOVERY, 12)
+    score = score_episode(
+        world, case, outcome.final_message, outcome.status, outcome.tool_calls, 1.0
+    )
+    assert case.family == list(TaskFamily)[family_index]
+    assert score.verified_completion
+    assert {event.tool for event in world.events} <= set(case.tool_names.values())

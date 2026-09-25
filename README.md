@@ -2,11 +2,12 @@
 
 TraceBench is a small, reproducible benchmark for a failure mode that ordinary final-answer tests miss: a tool-using agent can create duplicate work, use stale evidence, or claim success after an ambiguous tool response.
 
-It runs agents inside a deterministic fictional research workspace, injects faults at semantic actions, and scores the resulting world state plus the full action history. The included scripted agents are test controls for the harness. A live adapter runs local tool-capable models through Ollama.
+It runs agents inside deterministic fictional workspaces, injects faults at semantic actions, and scores the resulting world state plus the full action history. The included scripted agents are test controls for the harness. A live adapter runs local tool-capable models through Ollama.
 
 ## What is implemented
 
 - Versioned experiment results, draft reports, teams and idempotent review requests.
+- Three task families with distinct tool contracts: research evidence, customer support and model release.
 - Clean, tool-fault, misleading-content and combined conditions.
 - Post-commit timeouts: the write succeeds but its response is lost.
 - Permission envelopes and approved-evidence enforcement.
@@ -42,9 +43,9 @@ uv run tracebench serve --data-root service-data
 `GET /runs/{run_id}` expose manifests and episode records. The current local service executes
 one submitted run synchronously; a durable multi-worker queue remains future work.
 
-The smoke run contains 64 deterministic episodes (8 tasks × 2 variants × 4 conditions). It proves that the benchmark detects the designed failures; it is not a language-model quality result.
+The smoke run contains 64 deterministic episodes (8 tasks × 2 variants × 4 conditions) distributed across three task families. The families share a controlled state-transition structure so comparisons remain paired; they add protocol and instruction diversity but do not represent three production systems. The smoke run proves that the benchmark detects the designed failures; it is not a language-model quality result.
 
-Checked-in results: [harness smoke run](reports/harness-smoke.md), the original
+Checked-in results: [multi-family harness smoke v3](reports/harness-smoke-v3.md), the historical [single-family harness smoke](reports/harness-smoke.md), the original
 [qwen3:0.6b Ollama pilot](reports/ollama-pilot.md), and the
 [v0.2 model compatibility gate](reports/model-compatibility-v2.md).
 

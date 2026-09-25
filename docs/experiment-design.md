@@ -11,9 +11,12 @@ It does not accept the agent's final message as evidence of completion.
 
 ## Task and conditions
 
-Each case asks an agent to find an approved experiment metric, attach the metric and source
-to one draft report, and create exactly one review for one team. Case identifiers and
-numeric values vary while the task structure stays fixed.
+Cases cover research evidence, customer support and model-release workflows. Each asks an
+agent to find approved evidence, attach its metric and source to one versioned record, and
+create exactly one idempotent review/escalation/approval. The families use distinct task
+language and tool contracts while retaining a common controlled state transition so paired
+fault comparisons remain interpretable. This is broader than paraphrasing one prompt, but
+it is not equivalent to three independently implemented production systems.
 
 Four conditions isolate different causes of failure:
 
@@ -52,8 +55,7 @@ run stores a manifest, every event and final state in JSONL and SQLite, and both
 and machine-checkable reports. A published Ollama result must additionally record its model
 digest because tags can move.
 
-The environment is synthetic, tasks share one template, and the current sample is small.
+The environment is synthetic, task families share one abstract state-transition pattern, and the current sample is small.
 Scripted controls test implementation correctness rather than model ability. Local decoding
 can vary across runtimes despite fixed temperature and seed. The benchmark therefore
 supports narrow causal debugging inside this simulator, not a general agent-safety claim.
-

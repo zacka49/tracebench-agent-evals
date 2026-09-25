@@ -1,6 +1,12 @@
 import pytest
 
-from tracebench.agents import EpisodeTimeout, OllamaAgent, ScriptedAgent
+from tracebench.agents import (
+    EpisodeTimeout,
+    OllamaAgent,
+    ScriptedAgent,
+    TransformersAgent,
+    _extract_json_object,
+)
 from tracebench.cases import generate_cases
 from tracebench.environment import Workspace
 from tracebench.schemas import Condition, FinalStatus, TaskFamily, Variant
@@ -74,6 +80,20 @@ def test_model_prompt_requires_observed_tool_state():
     prompt = OllamaAgent.system_prompt(Variant.BASELINE)
     assert "MUST call" in prompt
     assert "zero tool calls is invalid" in prompt
+
+
+def test_transformers_protocol_extracts_first_json_object():
+    text = 'prefix {"tool":{"name":"read_report","arguments":{}}} suffix'
+    assert _extract_json_object(text) == {
+        "tool": {"name": "read_report", "arguments": {}}
+    }
+    assert _extract_json_object("no object") is None
+
+
+def test_transformers_prompt_requires_json_and_recovery():
+    prompt = TransformersAgent.system_prompt(Variant.CONTROLS_AND_RECOVERY, [])
+    assert "exactly one JSON object" in prompt
+    assert "same request ID" in prompt
 
 
 @pytest.mark.parametrize("family_index", [0, 1, 2])

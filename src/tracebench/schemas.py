@@ -52,11 +52,12 @@ class FinalStatus(StrEnum):
 class Limits(StrictModel):
     tool_calls: int = Field(default=12, ge=1, le=50)
     wall_seconds: int = Field(default=180, ge=1, le=1800)
+    max_new_tokens: int = Field(default=192, ge=32, le=1024)
 
 
 class RunConfig(StrictModel):
     suite: str
-    provider: str = Field(pattern="^(scripted|ollama)$")
+    provider: str = Field(pattern="^(scripted|ollama|transformers)$")
     model: str
     case_count: int = Field(default=8, ge=1, le=200)
     variants: list[Variant]

@@ -1,0 +1,17 @@
+suite: multi_family_cpu_model_v1
+provider: transformers
+model: Qwen/Qwen2.5-0.5B-Instruct
+model_digest: c89bee90d9f811437d9735454613c35b4a3c4dc8
+case_count: 3
+variants:
+  - baseline
+  - controls_and_recovery
+conditions:
+  - clean
+  - combined
+repeats: 1
+seed: 20260924
+limits:
+  tool_calls: 10
+  wall_seconds: 600
+  max_new_tokens: 160

@@ -18,6 +18,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.6"]
+local-model = [
+  "torch>=2.4",
+  "transformers>=4.51,<5",
+]
 
 [project.scripts]
 tracebench = "tracebench.cli:main"

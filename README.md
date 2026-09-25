@@ -2,7 +2,11 @@
 
 TraceBench is a small, reproducible benchmark for a failure mode that ordinary final-answer tests miss: a tool-using agent can create duplicate work, use stale evidence, or claim success after an ambiguous tool response.
 
-It runs agents inside deterministic fictional workspaces, injects faults at semantic actions, and scores the resulting world state plus the full action history. The included scripted agents are test controls for the harness. A live adapter runs local tool-capable models through Ollama.
+It runs agents inside deterministic fictional workspaces, injects faults at semantic actions, and scores the resulting world state plus the full action history. The included scripted agents are test controls for the harness. Model-backed adapters support Ollama native tool calls and a pinned Transformers JSON-tool protocol.
+
+![TraceBench evaluation architecture](docs/assets/tracebench-overview.svg)
+
+For an interview-ready narrative, use the [three-minute walkthrough](docs/demo-walkthrough.md).
 
 ## What is implemented
 
@@ -20,6 +24,7 @@ It runs agents inside deterministic fictional workspaces, injects faults at sema
 - A localhost FastAPI interface for submitting and inspecting evaluation runs.
 - Task-cluster bootstrap interval for the primary paired comparison.
 - An Ollama native tool-calling loop and deterministic no-model CI path.
+- A CPU-capable Transformers adapter with immutable model revision, greedy decoding and preserved protocol failures.
 
 ## Quick start
 
@@ -47,7 +52,15 @@ The smoke run contains 64 deterministic episodes (8 tasks × 2 variants × 4 con
 
 Checked-in results: [multi-family harness smoke v3](reports/harness-smoke-v3.md), the historical [single-family harness smoke](reports/harness-smoke.md), the original
 [qwen3:0.6b Ollama pilot](reports/ollama-pilot.md), and the
-[v0.2 model compatibility gate](reports/model-compatibility-v2.md).
+[v0.2 model compatibility gate](reports/model-compatibility-v2.md). The measured
+[pinned Transformers CPU pilot](reports/transformers-cpu-pilot.md) covers all three task families: the 0.5B model used at least one tool in 10/12 episodes but achieved 0/12 independently verified completions, so it was rejected for a larger matrix.
+
+The Transformers pilot is reproducible without Ollama:
+
+```powershell
+uv sync --extra dev --extra local-model
+uv run tracebench run --config configs/transformers-cpu-pilot.yaml --output outputs/transformers-cpu-pilot
+```
 
 For a deliberately small local-model pilot, first verify the configured model is installed in Ollama:
 

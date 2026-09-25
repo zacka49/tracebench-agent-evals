@@ -8,7 +8,7 @@ from pathlib import Path
 
 import httpx
 
-from .agents import AgentOutcome, EpisodeTimeout, OllamaAgent, ScriptedAgent
+from .agents import AgentOutcome, EpisodeTimeout, OllamaAgent, ScriptedAgent, TransformersAgent
 from .cases import generate_cases
 from .environment import Workspace
 from .schemas import EpisodeRecord, FinalStatus, RunConfig
@@ -71,6 +71,16 @@ def run_config(config: RunConfig, output_dir: Path, resume: bool = True) -> list
     run_id, provenance = _run_identity(config, cases)
     database_path = output_dir / "episodes.db"
     records: list[EpisodeRecord] = []
+    if config.provider == "scripted":
+        agent = ScriptedAgent()
+    elif config.provider == "ollama":
+        agent = OllamaAgent(config.model)
+    else:
+        agent = TransformersAgent(
+            config.model,
+            revision=config.model_digest,
+            max_new_tokens=config.limits.max_new_tokens,
+        )
     with EpisodeStore(database_path) as store:
         manifest = {"run_id": run_id, **provenance, "database": database_path.name}
         store.save_run(run_id, manifest)
@@ -92,11 +102,6 @@ def run_config(config: RunConfig, output_dir: Path, resume: bool = True) -> list
                         status = "succeeded"
                         error = None
                         try:
-                            agent = (
-                                ScriptedAgent()
-                                if config.provider == "scripted"
-                                else OllamaAgent(config.model)
-                            )
                             outcome = agent.run(
                                 world,
                                 case,
